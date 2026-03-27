@@ -1,3 +1,4 @@
+import { JWT_SECRET } from "common/constants"
 import { Elysia } from "elysia"
 import jwt from "jsonwebtoken"
 
@@ -13,7 +14,7 @@ export const VerifyUser = new Elysia()
     const token = authHeader.split(" ")[1]
 
     try {
-      const decoded = jwt.verify(token, "your_secret_key")
+      const decoded = jwt.verify(token, JWT_SECRET)
 
       return {
         user: decoded

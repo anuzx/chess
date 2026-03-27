@@ -5,6 +5,7 @@
   "private": true,
   "devDependencies": {
     "@types/bun": "latest",
+    "@types/jsonwebtoken": "^9.0.10",
     "@types/ws": "^8.18.1"
   },
   "peerDependencies": {
@@ -12,6 +13,7 @@
   },
   "dependencies": {
     "common": "*",
+    "jsonwebtoken": "^9.0.3",
     "ws": "^8.20.0"
   }
 }
