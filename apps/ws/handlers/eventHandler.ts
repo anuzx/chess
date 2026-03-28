@@ -1,22 +1,35 @@
-import WebSocket from "ws";
+import { WebSocket } from "ws";
 import { events } from "common/events";
+import { handleJoinRoom } from "./joinRoomHandler";
+import { handleCreateRoom } from "./createRoomHandler";
+import { handleMove } from "./moveHandler";
+import { handleResign } from "./resignHandler";
 
-export const handleEvent = (ws: WebSocket, type: string, payload: unknown) => {
+interface AuthenticatedUser {
+  id: string;
+}
+
+export const handleEvent = async (
+  ws: WebSocket,
+  user: AuthenticatedUser,
+  type: string,
+  payload: Record<string, unknown> | undefined) => {
+
   switch (type) {
     case events.create:
-      console.log("Create room...", payload)
+      await handleCreateRoom(ws, user)
       break;
 
     case events.join:
-      console.log("join room...", payload)
+      await handleJoinRoom(ws, user, payload)
       break;
 
     case events.move:
-      console.log("move event received with payload", payload)
+      await handleMove(ws, user, payload)
       break;
 
     case events.resign:
-      console.log("resign event received with payload", payload)
+      await handleResign(ws, user, payload)
       break;
 
     case events.talk:

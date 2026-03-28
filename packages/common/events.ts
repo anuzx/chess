@@ -3,5 +3,8 @@ export const events = {
   create: "create_room",
   talk: "talk",
   resign: "resign",
-  move: "move"
+  move: "move",
+  takebackApplied: "takebac_applied",
+  takebackRequest: "takeback_request",
+  takebackResponse: "takeback_response",
 }

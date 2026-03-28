@@ -13,7 +13,9 @@
   },
   "dependencies": {
     "common": "*",
+    "redis": "*",
     "jsonwebtoken": "^9.0.3",
-    "ws": "^8.20.0"
+    "ws": "^8.20.0",
+    "chess.js": "^1.4.0"
   }
 }

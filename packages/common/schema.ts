@@ -14,5 +14,5 @@ export const SigninSchema = z.object({
 
 export const webSocketMessage = z.object({
   type: z.string(),
-  payload: z.object()
+  payload: z.record(z.string(), z.unknown()).optional()
 })

@@ -1,0 +1,17 @@
+{
+  "name": "redis",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "exports": {
+    "./gamestore": "./gamestore.ts",
+    "./gameService": "./gameService.ts"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "ioredis": "^5.10.1"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  }
+}

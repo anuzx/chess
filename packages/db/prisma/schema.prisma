@@ -17,4 +17,25 @@ model User {
   name     String
   email    String @unique
   password String
+
+  whiteGames Game[] @relation("WhitePlayer")
+  blackGames Game[] @relation("BlackPlayer")
+}
+
+model Game {
+  id String @id @default(uuid())
+
+  whiteId String?
+  blackId String?
+
+  winnerId  String?
+  endReason String?
+
+  moves    Json
+  finalFen String
+
+  createdAt DateTime @default(now())
+
+  white User? @relation("WhitePlayer", fields: [whiteId], references: [id])
+  black User? @relation("BlackPlayer", fields: [blackId], references: [id])
 }

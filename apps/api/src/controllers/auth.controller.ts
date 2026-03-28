@@ -2,6 +2,7 @@ import { SigninSchema, SignupSchema } from "common/schema"
 import bcrypt from "bcrypt"
 import { prisma } from "db"
 import jwt from "jsonwebtoken"
+import { JWT_SECRET } from "common/constants"
 
 export const handleSignup = async ({ body, set }) => {
   const { success, data } = SignupSchema.safeParse(body)
@@ -67,7 +68,7 @@ export const handleLogin = async ({ body, set }) => {
     return { error: "email or password is wrong" }
   }
 
-  const token = jwt.sign({ id: existUser.id }, "your_secret_key")
+  const token = jwt.sign({ id: existUser.id }, JWT_SECRET)
 
   return { message: "login done", token }
 }
