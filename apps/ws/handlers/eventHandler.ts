@@ -17,7 +17,7 @@ export const handleEvent = async (
 
   switch (type) {
     case events.create:
-      await handleCreateRoom(ws, user)
+      await handleCreateRoom(ws, user, payload)
       break;
 
     case events.join:

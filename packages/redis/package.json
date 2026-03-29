@@ -5,10 +5,13 @@
   "private": true,
   "exports": {
     "./gamestore": "./gamestore.ts",
-    "./gameService": "./gameService.ts"
+    "./gameService": "./gameService.ts",
+    "./index": "./index.ts"
   },
   "devDependencies": {
-    "@types/bun": "latest",
+    "@types/bun": "latest"
+  },
+  "dependencies": {
     "ioredis": "^5.10.1"
   },
   "peerDependencies": {

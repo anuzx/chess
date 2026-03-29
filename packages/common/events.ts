@@ -4,7 +4,7 @@ export const events = {
   talk: "talk",
   resign: "resign",
   move: "move",
-  takebackApplied: "takebac_applied",
+  takebackApplied: "takeback_applied",
   takebackRequest: "takeback_request",
   takebackResponse: "takeback_response",
 }

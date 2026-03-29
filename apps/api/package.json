@@ -11,6 +11,7 @@
     "bcrypt": "^6.0.0",
     "common": "*",
     "db": "*",
+    "redis": "*",
     "dotenv": "^17.3.1",
     "elysia": "latest",
     "jsonwebtoken": "^9.0.3"

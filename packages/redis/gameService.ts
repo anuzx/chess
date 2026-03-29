@@ -8,14 +8,13 @@ class GameService {
     const game = await gameStore.endGame(gameId, winner, reason)
 
     // 2. Decide if we should save
-    const shouldSave = game.players.some(p => !p.isGuest)
+    const shouldSave =
+      game.players.length === 2 &&
+      game.players.some(p => !p.isGuest)
 
     if (shouldSave) {
       await this.saveGameToDB(game)
     }
-
-    // 3. Cleanup Redis
-    await redis.del(`game:${gameId}`)
 
     return game
   }

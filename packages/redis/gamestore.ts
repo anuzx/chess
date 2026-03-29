@@ -7,7 +7,7 @@ type GameStatus = "waiting" | "active" | "completed" | "abandoned";
 interface Player {
   id: string;
   color: PieceColor;
-  isGuest?: boolean;
+  isGuest: boolean;
 }
 
 interface Move {
@@ -43,10 +43,10 @@ class GameStore {
     await redis.set(GAME_KEY(game.id), JSON.stringify(game));
   }
 
-  async createGame(playerId: string): Promise<GameRecord> {
+  async createGame(playerId: string, isGuest: boolean): Promise<GameRecord> {
     const game: GameRecord = {
       id: crypto.randomUUID(),
-      players: [{ id: playerId, color: "white" }],
+      players: [{ id: playerId, color: "white", isGuest }],
       moves: [],
       status: "waiting",
       currentTurn: "white",
@@ -61,7 +61,7 @@ class GameStore {
     return game;
   }
 
-  async joinGame(gameId: string, playerId: string): Promise<GameRecord> {
+  async joinGame(gameId: string, playerId: string, isGuest: boolean): Promise<GameRecord> {
     const game = await this.getGame(gameId);
     if (!game) throw new Error("Game not found");
     if (game.status !== "waiting")
@@ -70,7 +70,7 @@ class GameStore {
     if (game.players.some((p) => p.id === playerId))
       throw new Error("Already in this game");
 
-    game.players.push({ id: playerId, color: "black" });
+    game.players.push({ id: playerId, color: "black", isGuest });
     game.status = "active";
     game.updatedAt = new Date().toISOString();
     await this.saveGame(game);
@@ -117,8 +117,11 @@ class GameStore {
     winner: string | null,
     reason: string,
   ): Promise<GameRecord> {
+
     const game = await this.getGame(gameId);
+
     if (!game) throw new Error("Game not found");
+    if (game.status === "completed") return game;
 
     game.status = "completed";
     game.winner = winner;
@@ -149,6 +152,7 @@ class GameStore {
     game.currentTurn = game.currentTurn === "white" ? "black" : "white";
     game.updatedAt = new Date().toISOString();
     // fen will be set by the caller after chess.undo()
+    await this.saveGame(game);
     return game;
   }
 

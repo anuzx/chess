@@ -4,6 +4,7 @@ import { events } from "common/events";
 import { getChess, deleteChess } from "../utils/chessManager";
 import { broadcast } from "../utils/broadcaster";
 import { gameService } from "redis/gameService";
+import { redis } from "redis/index"
 
 export async function handleMove(ws: WebSocket, user: any, payload: any) {
   const { gameId, from, to, promotion } = payload;
@@ -51,7 +52,6 @@ export async function handleMove(ws: WebSocket, user: any, payload: any) {
     }
 
     await gameService.endGame(gameId, winner, reason);
-    deleteChess(gameId);
 
     movePayload.gameOver = true;
     movePayload.winner = winner;
@@ -59,4 +59,10 @@ export async function handleMove(ws: WebSocket, user: any, payload: any) {
   }
 
   await broadcast(gameId, events.move, movePayload);
+
+  // cleanup AFTER broadcast
+  deleteChess(gameId);
+  await redis.del(`game:${gameId}`);
+
+  return;
 }
