@@ -4,6 +4,7 @@ import { handleJoinRoom } from "./joinRoomHandler";
 import { handleCreateRoom } from "./createRoomHandler";
 import { handleMove } from "./moveHandler";
 import { handleResign } from "./resignHandler";
+import { handleTalk } from "./talkHandler"
 
 interface AuthenticatedUser {
   id: string;
@@ -33,7 +34,7 @@ export const handleEvent = async (
       break;
 
     case events.talk:
-      console.log("messaging event received with payload", payload)
+      await handleTalk(ws, user, payload)
       break;
     default:
       console.warn("unknown event type received", type)

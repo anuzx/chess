@@ -1,7 +1,6 @@
 import { JWT_SECRET } from "common/constants"
 import { Elysia } from "elysia"
 import jwt from "jsonwebtoken"
-import crypto from "crypto"
 
 export const OptionalAuth = new Elysia()
   .derive(({ headers }) => {
