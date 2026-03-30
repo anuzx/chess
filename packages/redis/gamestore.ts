@@ -1,35 +1,6 @@
 import { redis } from "./index.ts";
+import type { GameRecord, Move, PieceColor, GameStatus, Player } from "./types.ts";
 
-type PieceColor = "white" | "black";
-
-type GameStatus = "waiting" | "active" | "completed" | "abandoned";
-
-interface Player {
-  id: string;
-  color: PieceColor;
-  isGuest: boolean;
-}
-
-interface Move {
-  from: string;
-  to: string;
-  san: string;
-  playerId: string;
-  timestamp: string;
-}
-
-interface GameRecord {
-  id: string;
-  players: Player[];
-  moves: Move[];
-  status: GameStatus;
-  currentTurn: PieceColor;
-  fen: string;
-  winner: string | null;
-  endReason: string | null;
-  createdAt: string;
-  updatedAt: string;
-}
 
 const GAME_KEY = (id: string) => `game:${id}`;
 
@@ -40,7 +11,7 @@ class GameStore {
   }
 
   private async saveGame(game: GameRecord): Promise<void> {
-    await redis.set(GAME_KEY(game.id), JSON.stringify(game));
+    await redis.set(GAME_KEY(game.id), JSON.stringify(game), "EX", 3600);
   }
 
   async createGame(playerId: string, isGuest: boolean): Promise<GameRecord> {
@@ -102,6 +73,7 @@ class GameStore {
       from: move.from,
       to: move.to,
       san,
+      fen,
       playerId,
       timestamp: new Date().toISOString(),
     });

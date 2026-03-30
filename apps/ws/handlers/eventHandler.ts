@@ -5,6 +5,8 @@ import { handleCreateRoom } from "./createRoomHandler";
 import { handleMove } from "./moveHandler";
 import { handleResign } from "./resignHandler";
 import { handleTalk } from "./talkHandler"
+import { handleTakebackRequest, handleTakebackResponse } from "./takeBack";
+
 
 interface AuthenticatedUser {
   id: string;
@@ -31,6 +33,14 @@ export const handleEvent = async (
 
     case events.resign:
       await handleResign(ws, user, payload)
+      break;
+
+    case events.takebackRequest:
+      await handleTakebackRequest(ws, user, payload);
+      break;
+
+    case events.takebackResponse:
+      await handleTakebackResponse(ws, user, payload);
       break;
 
     case events.talk:

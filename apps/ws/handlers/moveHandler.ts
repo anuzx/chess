@@ -51,18 +51,23 @@ export async function handleMove(ws: WebSocket, user: any, payload: any) {
       reason = "draw";
     }
 
+    const winnerColor = winner
+      ? game.players.find(p => p.id === winner)?.color ?? null
+      : null;
+
     await gameService.endGame(gameId, winner, reason);
 
     movePayload.gameOver = true;
-    movePayload.winner = winner;
+    movePayload.winner = winnerColor;
     movePayload.endReason = reason;
   }
 
   await broadcast(gameId, events.move, movePayload);
 
   // cleanup AFTER broadcast
-  deleteChess(gameId);
-  await redis.del(`game:${gameId}`);
-
+  if (chess.isGameOver()) {
+    deleteChess(gameId);
+    await redis.del(`game:${gameId}`);
+  }
   return;
 }

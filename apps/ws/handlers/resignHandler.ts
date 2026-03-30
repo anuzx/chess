@@ -11,9 +11,14 @@ export async function handleResign(ws: WebSocket, user: any, payload: any) {
 
   const game = await gameService.resign(gameId, user.id);
 
+  // resolve winner user ID → color so frontend can display "White wins!"
+  const winnerColor = game.winner
+    ? game.players.find((p) => p.id === game.winner)?.color ?? null
+    : null;
+
   await broadcast(gameId, events.resign, {
     gameId,
-    winner: game.winner,
+    winner: winnerColor,  // "white" | "black" | null
     endReason: "resign",
   });
 

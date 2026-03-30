@@ -13,6 +13,10 @@ export const gameRouter = new Elysia({ prefix: "/api/game" })
           { blackId: user.id },
         ]
       },
+      include: {
+        white: { select: { id: true, name: true } },
+        black: { select: { id: true, name: true } }
+      },
       orderBy: { createdAt: "desc" }
     })
 
