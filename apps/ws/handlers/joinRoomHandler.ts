@@ -1,8 +1,7 @@
 import { WebSocket } from "ws";
 import { gameStore } from "redis/gamestore";
+import { connections } from "../index";
 import { events } from "common/events";
-import { send } from "../utils/send";
-import { connections } from "..";
 
 export async function handleJoinRoom(ws: WebSocket, user: any, payload: any) {
   const gameId = payload?.gameId;
@@ -10,26 +9,44 @@ export async function handleJoinRoom(ws: WebSocket, user: any, payload: any) {
 
   const game = await gameStore.joinGame(gameId, user.id, user.isGuest);
 
-  // Tell the joining player (black) their color + current board state
-  send(ws, events.join, {
-    gameId: game.id,
-    color: "black",
-    status: game.status,
-    fen: game.fen,
-  });
+  const joiner = game.players.find(p => p.id === user.id)!;
+  const creator = game.players.find(p => p.id !== user.id)!;
 
-  // Notify the creator (white) that their opponent has joined so the game can start.
-  // We need to find the creator's WS connection and send directly to them.
-  const creator = game.players.find((p) => p.color === "white");
-  if (creator) {
-    const creatorWs = connections.get(creator.id);
-    if (creatorWs) {
-      send(creatorWs, events.join, {
-        gameId: game.id,
+  // LOGS 
+  //console.log("=== JOIN ROOM DEBUG ===")
+  //console.log("joiner  id:", joiner.id, "| color:", joiner.color)
+  //console.log("creator id:", creator.id, "| color:", creator.color)
+  //console.log("connections keys:", [...connections.keys()])
+  //console.log("creator WS found?", connections.has(creator.id))
+
+
+  // Notify creator — opponent joined, game starting
+  const creatorWs = connections.get(creator.id)
+  if (creatorWs && creatorWs.readyState === WebSocket.OPEN) {
+    creatorWs.send(JSON.stringify({
+      type: events.join,
+      payload: {
         opponentJoined: true,
-        status: game.status,
+        gameId,
         fen: game.fen,
-      });
-    }
+        color: creator.color,
+      }
+    }))
+    console.log("Sent join event to creator")
+  } else {
+    console.error("Creator WS not found or not open. creator.id:", creator.id)
+    console.error("connections map:", [...connections.entries()].map(([k]) => k))
   }
+
+  // Notify joiner — here's your color and board state
+  ws.send(JSON.stringify({
+    type: events.join,
+    payload: {
+      opponentJoined: false,
+      gameId,
+      fen: game.fen,
+      color: joiner.color,
+    }
+  }))
+  console.log("Sent join event to joiner")
 }

@@ -14,11 +14,13 @@
     "@repo/ui": "*",
     "next": "16.2.0",
     "react": "^19.2.0",
+    "react-chessboard": "^5.10.0",
     "react-dom": "^19.2.0"
   },
   "devDependencies": {
     "@repo/eslint-config": "*",
     "@repo/typescript-config": "*",
+    "@tailwindcss/postcss": "^4.2.2",
     "@types/node": "^22.15.3",
     "@types/react": "19.2.2",
     "@types/react-dom": "19.2.2",

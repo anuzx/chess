@@ -1,4 +1,4 @@
-export type PieceColor = "white" | "black";
+export type PieceColor = "white" | "black" | "random";
 
 export type GameStatus = "waiting" | "active" | "completed" | "abandoned";
 

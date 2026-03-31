@@ -1,6 +1,6 @@
 export const events = {
-  join: "join_room",
-  create: "create_room",
+  join: "join",
+  create: "create",
   talk: "talk",
   resign: "resign",
   move: "move",

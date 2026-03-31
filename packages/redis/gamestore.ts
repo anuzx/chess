@@ -1,6 +1,7 @@
 import { redis } from "./index.ts";
 import type { GameRecord, Move, PieceColor, GameStatus, Player } from "./types.ts";
 
+export type ColorPreference = "white" | "black" | "random";
 
 const GAME_KEY = (id: string) => `game:${id}`;
 
@@ -14,10 +15,22 @@ class GameStore {
     await redis.set(GAME_KEY(game.id), JSON.stringify(game), "EX", 3600);
   }
 
-  async createGame(playerId: string, isGuest: boolean): Promise<GameRecord> {
+  async createGame(
+    playerId: string,
+    isGuest: boolean,
+    colorPreference: ColorPreference = "random"
+  ): Promise<GameRecord> {
+    // resolve the actual color from preference
+    let creatorColor: PieceColor;
+    if (colorPreference === "random") {
+      creatorColor = Math.random() < 0.5 ? "white" : "black";
+    } else {
+      creatorColor = colorPreference;
+    }
+
     const game: GameRecord = {
       id: crypto.randomUUID(),
-      players: [{ id: playerId, color: "white", isGuest }],
+      players: [{ id: playerId, color: creatorColor, isGuest }],
       moves: [],
       status: "waiting",
       currentTurn: "white",
@@ -35,23 +48,22 @@ class GameStore {
   async joinGame(gameId: string, playerId: string, isGuest: boolean): Promise<GameRecord> {
     const game = await this.getGame(gameId);
     if (!game) throw new Error("Game not found");
-    if (game.status !== "waiting")
-      throw new Error("Game is not accepting players");
+    if (game.status !== "waiting") throw new Error("Game is not accepting players");
     if (game.players.length >= 2) throw new Error("Game is full");
-    if (game.players.some((p) => p.id === playerId))
-      throw new Error("Already in this game");
+    if (game.players.some((p) => p.id === playerId)) throw new Error("Already in this game");
 
-    game.players.push({ id: playerId, color: "black", isGuest });
+    // joiner always gets the opposite of whatever the creator picked
+    const creatorColor = game.players[0].color;
+    const joinerColor: PieceColor = creatorColor === "white" ? "black" : "white";
+
+    game.players.push({ id: playerId, color: joinerColor, isGuest });
     game.status = "active";
     game.updatedAt = new Date().toISOString();
     await this.saveGame(game);
     return game;
   }
 
-  async getPlayerColor(
-    gameId: string,
-    playerId: string,
-  ): Promise<PieceColor | null> {
+  async getPlayerColor(gameId: string, playerId: string): Promise<PieceColor | null> {
     const game = await this.getGame(gameId);
     if (!game) return null;
     const player = game.players.find((p) => p.id === playerId);
@@ -84,14 +96,8 @@ class GameStore {
     return game;
   }
 
-  async endGame(
-    gameId: string,
-    winner: string | null,
-    reason: string,
-  ): Promise<GameRecord> {
-
+  async endGame(gameId: string, winner: string | null, reason: string): Promise<GameRecord> {
     const game = await this.getGame(gameId);
-
     if (!game) throw new Error("Game not found");
     if (game.status === "completed") return game;
 
@@ -123,7 +129,6 @@ class GameStore {
     game.moves.pop();
     game.currentTurn = game.currentTurn === "white" ? "black" : "white";
     game.updatedAt = new Date().toISOString();
-    // fen will be set by the caller after chess.undo()
     await this.saveGame(game);
     return game;
   }

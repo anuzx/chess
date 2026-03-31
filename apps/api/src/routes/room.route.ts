@@ -6,11 +6,11 @@ import crypto from "crypto"
 
 export const roomRouter = new Elysia({ prefix: "/api/room" })
   .use(OptionalAuth)
-  .post("/create", async ({ user, isGuest }) => {
+  .post("/create", async ({ body, user, isGuest }) => {
     // user is the decoded JWT payload if logged in, null if guest
     const creatorId = user?.id ?? `guest-${crypto.randomUUID()}`
-
-    const game = await gameStore.createGame(creatorId, isGuest)
+    const colorPreference = (body as any)?.colorPreference ?? "random"
+    const game = await gameStore.createGame(creatorId, isGuest, colorPreference)
 
     return {
       link: `${FRONTEND_URL}/game/${game.id}`,
