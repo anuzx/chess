@@ -1,10 +1,13 @@
 export const events = {
-  join: "join",
   create: "create",
-  talk: "talk",
-  resign: "resign",
+  join: "join",
   move: "move",
-  takebackApplied: "takeback_applied",
+  resign: "resign",
+  talk: "talk",
   takebackRequest: "takeback_request",
   takebackResponse: "takeback_response",
-}
+  takebackApplied: "takeback_applied",
+  error: "error",
+} as const
+
+export type EventName = (typeof events)[keyof typeof events]

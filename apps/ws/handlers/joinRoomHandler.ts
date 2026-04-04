@@ -18,7 +18,7 @@ export async function handleJoinRoom(ws: WebSocket, user: any, payload: any) {
   //console.log("creator id:", creator.id, "| color:", creator.color)
   //console.log("connections keys:", [...connections.keys()])
   //console.log("creator WS found?", connections.has(creator.id))
-
+  const currentTurn = game.fen.includes(" w ") ? "white" : "black";
 
   // Notify creator — opponent joined, game starting
   const creatorWs = connections.get(creator.id)
@@ -30,6 +30,7 @@ export async function handleJoinRoom(ws: WebSocket, user: any, payload: any) {
         gameId,
         fen: game.fen,
         color: creator.color,
+        currentTurn
       }
     }))
     console.log("Sent join event to creator")
@@ -46,6 +47,7 @@ export async function handleJoinRoom(ws: WebSocket, user: any, payload: any) {
       gameId,
       fen: game.fen,
       color: joiner.color,
+      currentTurn
     }
   }))
   console.log("Sent join event to joiner")

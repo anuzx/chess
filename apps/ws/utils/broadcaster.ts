@@ -10,12 +10,16 @@ export async function broadcast(
   const game = await gameStore.findById(gameId);
   if (!game) return;
 
-  const msg = JSON.stringify({ type, payload });
-
   for (const player of game.players) {
     const ws = connections.get(player.id);
     if (ws && ws.readyState === WebSocket.OPEN) {
-      ws.send(msg);
-    }
+      ws.send(JSON.stringify({
+        type,
+        payload: {
+          ...payload,
+          color: player.color, // DIFFERENT per player
+        },
+      }))
+    };
   }
 }

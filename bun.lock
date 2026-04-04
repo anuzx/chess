@@ -34,6 +34,8 @@
       "version": "0.1.0",
       "dependencies": {
         "@repo/ui": "*",
+        "chess.js": "^1.4.0",
+        "chessiro-canvas": "^0.1.31",
         "next": "16.2.0",
         "react": "^19.2.0",
         "react-chessboard": "^5.10.0",
@@ -501,6 +503,8 @@
     "chart.js": ["chart.js@4.5.1", "", { "dependencies": { "@kurkle/color": "^0.3.0" } }, "sha512-GIjfiT9dbmHRiYi6Nl2yFCq7kkwdkp1W/lp2J99rX0yo9tgJGn3lKQATztIjb5tVtevcBtIdICNWqlq5+E8/Pw=="],
 
     "chess.js": ["chess.js@1.4.0", "", {}, "sha512-BBJgrrtKQOzFLonR0l+k64A98NLemPwNsCskwb+29bRwobUa4iTm51E1kwGPbWXAcfdDa18nad6vpPPKPWarqw=="],
+
+    "chessiro-canvas": ["chessiro-canvas@0.1.31", "", { "peerDependencies": { "react": ">=18.0.0", "react-dom": ">=18.0.0" } }, "sha512-MbNbjHlDQOQkIdQov2ZxdJ5jubSnqQ4n+mW3vuNotQpiLQAbC91weEJ1E4ITL8iEzP6V22j8bzO1Qze0YUm0nw=="],
 
     "chokidar": ["chokidar@4.0.3", "", { "dependencies": { "readdirp": "^4.0.1" } }, "sha512-Qgzu8kfBvo+cA4962jnP1KkS6Dop5NS6g7R5LFYJr4b8Ub94PPQXUksCw9PvXoeXPRRddRNC5C1JQUR2SMGtnA=="],
 

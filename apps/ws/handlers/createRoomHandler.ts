@@ -21,6 +21,8 @@ export async function handleCreateRoom(ws: WebSocket, user: any, payload: any) {
 
   // Tell the creator their color so the frontend can orient the board
   send(ws, events.create, {
+    fen: game.fen,
+    currentTurn: game.fen.includes(" w ") ? "white" : "black",
     gameId: game.id,
     color: player.color, // "white"
     status: game.status,
