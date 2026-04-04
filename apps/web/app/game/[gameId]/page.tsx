@@ -19,6 +19,7 @@ export default function GamePage() {
     resign,
     requestTakeback,
     respondTakeback,
+    sendMessage,
   } = useChessGame(gameId)
 
   const [joined, setJoined] = useState(false)
@@ -64,10 +65,12 @@ export default function GamePage() {
       moveHistory={game.moveHistory}
       takebackRequest={game.takebackRequest}
       onMove={makeMove}
+      messages={game.messages}
       onResign={resign}
       onRequestTakeback={requestTakeback}
       onRespondTakeback={respondTakeback}
       lastMove={game.lastMove}
+      onSendMessage={sendMessage}
     />
   )
 }

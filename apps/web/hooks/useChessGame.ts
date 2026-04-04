@@ -5,6 +5,12 @@ import { useEffect, useRef, useState } from "react"
 export type GamePhase = "waiting" | "joining" | "playing" | "finished"
 export type Color = "white" | "black"
 
+export interface ChatMessage {
+  senderId: Color
+  message: string
+  timestamp: string
+}
+
 export interface GameState {
   fen: string
   currentTurn: Color
@@ -15,6 +21,7 @@ export interface GameState {
   moveHistory: string[]
   lastMove: { from: string; to: string } | null
   takebackRequest: boolean
+  messages: ChatMessage[]   // added
 }
 
 const INITIAL_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
@@ -24,8 +31,6 @@ export function useChessGame(gameId: string) {
   const wsRef = useRef<WebSocket | null>(null)
   const isCreator = useRef(false)
   const initializedRef = useRef(false)
-  // Store color in a ref too so the join handler can read it
-  // without stale closure issues
   const myColorRef = useRef<Color | null>(null)
 
   const [pageUrl, setPageUrl] = useState("")
@@ -39,6 +44,7 @@ export function useChessGame(gameId: string) {
     moveHistory: [],
     lastMove: null,
     takebackRequest: false,
+    messages: [],             // added
   })
 
   useEffect(() => {
@@ -75,14 +81,11 @@ export function useChessGame(gameId: string) {
     ws.onmessage = (event) => {
       console.log("[WS received]", event.data)
       const msg = JSON.parse(event.data)
-
-      // Support both { type, payload } and flat shapes
       const type = msg.type
       const payload = msg.payload ?? msg
 
       switch (type) {
         case "create":
-          // Server confirmed room — tells creator their color
           console.log("[WS] create event, color:", payload.color)
           myColorRef.current = payload.color as Color
           setGame(g => ({
@@ -96,18 +99,15 @@ export function useChessGame(gameId: string) {
         case "join":
           console.log("[WS] join event, opponentJoined:", payload.opponentJoined, "color:", payload.color)
           if (payload.opponentJoined) {
-            // Creator: opponent joined — use the color already stored in ref
-            // Don't rely on state here due to closure staleness
             myColorRef.current = payload.color ?? myColorRef.current
             setGame(g => ({
               ...g,
-              color: payload.color ?? g.color,     // re-set from ref to guarantee it's not null
+              color: payload.color ?? g.color,
               phase: "playing",
               fen: payload.fen ?? g.fen,
               currentTurn: payload.currentTurn ?? g.currentTurn,
             }))
           } else {
-            // Joiner: first time learning their color
             myColorRef.current = payload.color as Color
             setGame(g => ({
               ...g,
@@ -157,6 +157,21 @@ export function useChessGame(gameId: string) {
           }))
           break
 
+        // Chat
+        case "talk":
+          setGame(g => ({
+            ...g,
+            messages: [
+              ...g.messages,
+              {
+                senderId: payload.senderId as Color,
+                message: payload.message as string,
+                timestamp: payload.timestamp as string,
+              },
+            ],
+          }))
+          break
+
         case "error":
           console.error("[WS error]", payload.message)
           break
@@ -187,5 +202,7 @@ export function useChessGame(gameId: string) {
     requestTakeback: () => send("takeback_request", { gameId }),
     respondTakeback: (accepted: boolean) =>
       send("takeback_response", { gameId, accepted }),
+    sendMessage: (message: string) =>
+      send("talk", { gameId, message }),   // added
   }
 }
